@@ -1,39 +1,48 @@
-[app]
-# Nombre de la aplicación
-title = MiCalculadora
+name: Build Android APK
 
-# Identificador único del paquete
-package.name = calculadora
-package.domain = org.kivy
+on:
+  push:
+    branches:
+      - main
 
-# Versión de la aplicación
-version = 1.1
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-# Carpeta de tu código fuente y extensiones incluidas
-source.dir = .
-source.include_exts = py,png,kv,json,spec
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-# Requerimientos de Python y librerías de Kivy
-requirements = python3,kivy
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-# Permisos que requiere la app (agrega más si los necesitas)
-android.permissions = INTERNET
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install cython
+          pip install buildozer
 
-# Ícono personalizado (descomenta si tienes icono.png en la raíz)
-# android.icon_filename = %(source.dir)s/icono.png
+      - name: Install JDK and Android Commandline Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-17-jdk unzip wget
+          wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O cmdline-tools.zip
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          unzip -q cmdline-tools.zip -d $HOME/android-sdk/cmdline-tools
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/cmdline-tools/bin
+          mkdir -p $ANDROID_HOME
 
-# Orientación de la pantalla, puede ser: portrait, landscape, sensor
-orientation = portrait
+      - name: Accept Android SDK licenses
+        run: yes | $HOME/android-sdk/cmdline-tools/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses || true
 
-# Nombre del archivo principal de tu app
-main.py = main.py
+      - name: Compile Kivy App
+        run: buildozer -v android debug
 
-# (Opcional) Para evitar errores con el log
-log_level = 2
-
-# (Opcional) Para que funcione bien en Android moderno
-android.api = 33
-android.minapi = 21
-
-# (Opcional) Si usas .kv, asegúrate de incluirlo automáticamente
-presplash.filename = %(source.dir)s/presplash.png
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MiCalculadora
+          path: bin/*.apk
