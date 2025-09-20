@@ -1,48 +1,24 @@
-name: Build Android APK
+[app]
+# --- Datos básicos de la app ---
+title = Calculadora
+package.name = calculadora
+package.domain = org.tuusuario   # cambia "tuusuario" por algo único
+source.dir = .
+source.include_exts = py,png,jpg,kv,atlas
 
-on:
-  push:
-    branches:
-      - main
+# --- Icono y versión ---
+icon.filename = icono.png
+version = 0.1
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+# --- Dependencias de Python ---
+requirements = python3,kivy
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+# --- Orientación de la pantalla ---
+orientation = portrait
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+# --- Permisos opcionales (si necesitas) ---
+# android.permissions = INTERNET
 
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install cython
-          pip install buildozer
-
-      - name: Install JDK and Android Commandline Tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y openjdk-17-jdk unzip wget
-          wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O cmdline-tools.zip
-          mkdir -p $HOME/android-sdk/cmdline-tools
-          unzip -q cmdline-tools.zip -d $HOME/android-sdk/cmdline-tools
-          export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/cmdline-tools/bin
-          mkdir -p $ANDROID_HOME
-
-      - name: Accept Android SDK licenses
-        run: yes | $HOME/android-sdk/cmdline-tools/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses || true
-
-      - name: Compile Kivy App
-        run: buildozer -v android debug
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: MiCalculadora
-          path: bin/*.apk
+[buildozer]
+log_level = 2
+warn_on_root = 1
