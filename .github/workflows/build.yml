@@ -1,31 +1,26 @@
-name: Build Android APK
+[app]
+# Nombre de la aplicación
+title = MiCalculadora
 
-on:
-  push:
-    branches:
-      - main
+# Identificador de la aplicación
+package.name = com.miempresa.calculadora
+package.domain = org.kivy
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+# Versión de la aplicación (debe ser número entero en version.code, pero aquí es version)
+version = 1.1
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+# Archivo principal y extensiones incluidas
+source.dir = .
+source.include_exts = py,png,kv,json,spec
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
+# Requerimientos de Python y librerías
+requirements = python3,kivy
 
-      - name: Install dependencies
-        run: pip install buildozer
+# Permisos de Android necesarios
+android.permissions = INTERNET
 
-      - name: Compile Kivy App
-        run: buildozer android debug
+# Ícono personalizado (descomenta si tienes el archivo)
+# android.icon_filename = %(source.dir)s/icono.png
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: my-app-apk
-          path: bin/*.apk
+# Orientación de la pantalla
+orientation = portrait
