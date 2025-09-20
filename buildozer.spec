@@ -1,27 +1,26 @@
-El nombre que aparecerá en tu teléfono.
-title = Mi Calculadora
+[app]
+# Nombre de la aplicación
+title = MiCalculadora
 
-El identificador del paquete, para Android.
-package.name = mi_calculadora
+# Identificador de la aplicación
+package.name = com.miempresa.calculadora
+package.domain = org.kivy
 
-Tu dominio, puede ser cualquier cosa.
-package.domain = com.mi_proyecto
+# Versión de la aplicación
+version = 1.1
 
-Directorio del proyecto.
+# Archivo principal y extensiones incluidas
 source.dir = .
+source.include_exts = py,png,kv,json,spec
 
-Las librerías que usamos.
-requirements = python3, kivy
+# Requerimientos de Python y librerías
+requirements = python3,kivy
 
-Mantiene la aplicación en vertical.
+# Permisos de Android necesarios
+android.permissions = INTERNET
+
+# Ícono personalizado (descomenta si tienes el archivo)
+# android.icon_filename = %(source.dir)s/icono.png
+
+# Orientación de la pantalla
 orientation = portrait
-
-Nivel de Android que necesita para funcionar.
-android.api = 33
-
-Arquitectura para celulares modernos.
-android.archs = arm64-v8a
-
-Ícono de la app
-Para agregar un ícono, crea una imagen llamada 'icono.png' aquí y quita el '#' de la línea de abajo.
-android.icon_filename = %(source.dir)s/icono.png
