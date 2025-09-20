@@ -14,6 +14,6 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build Android APK
-        uses: m0-c/kivy-buildozer-action@v1.1
+        uses: daniel-santos/kivy-buildozer-action@v1.1
         with:
           buildozer_spec_path: buildozer.spec
