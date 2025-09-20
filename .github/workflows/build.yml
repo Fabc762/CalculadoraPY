@@ -8,6 +8,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:                    # <-- variables de entorno disponibles en todos los steps
+      ANDROID_HOME: ${{ github.workspace }}/android-sdk
+      PATH: ${{ github.workspace }}/android-sdk/platform-tools:${{ github.workspace }}/android-sdk/cmdline-tools/bin:${{ env.PATH }}
 
     steps:
       - name: Checkout repository
@@ -30,24 +33,20 @@ jobs:
           sudo apt-get install -y openjdk-17-jdk unzip wget
           # descargar commandline tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O cmdline-tools.zip
-          mkdir -p $HOME/android-sdk/cmdline-tools
-          unzip -q cmdline-tools.zip -d $HOME/android-sdk/cmdline-tools
+          mkdir -p $ANDROID_HOME/cmdline-tools
+          unzip -q cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
 
-          export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/cmdline-tools/bin
-          mkdir -p $ANDROID_HOME
-
-          # aceptar licencias y instalar paquetes requeridos
-          yes | $HOME/android-sdk/cmdline-tools/cmdline-tools/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses
-          yes | $HOME/android-sdk/cmdline-tools/cmdline-tools/bin/sdkmanager --sdk_root=$ANDROID_HOME \
+          # instalar paquetes requeridos antes de licencias
+          yes | $ANDROID_HOME/cmdline-tools/cmdline-tools/bin/sdkmanager --sdk_root=$ANDROID_HOME \
             "platform-tools" \
             "platforms;android-34" \
             "build-tools;36.1.0"
 
+          # aceptar licencias de todo
+          yes | $ANDROID_HOME/cmdline-tools/cmdline-tools/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses
+
       - name: Compile Kivy App
         run: |
-          export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$PATH:$ANDROID_HOME/platform-tools
           buildozer -v android debug
 
       - name: Upload APK artifact
