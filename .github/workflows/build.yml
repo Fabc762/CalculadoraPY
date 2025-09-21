@@ -8,49 +8,44 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:                    # <-- variables de entorno disponibles en todos los steps
-      ANDROID_HOME: ${{ github.workspace }}/android-sdk
-      PATH: ${{ github.workspace }}/android-sdk/platform-tools:${{ github.workspace }}/android-sdk/cmdline-tools/bin:${{ env.PATH }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Install Python dependencies
-        run: |
-          pip install --upgrade pip
-          pip install cython
-          pip install buildozer
+      - name: Install Buildozer
+        run: pip install buildozer
 
-      - name: Install JDK and Android Commandline Tools
+      - name: Install Java & Android SDK
         run: |
           sudo apt-get update
           sudo apt-get install -y openjdk-17-jdk unzip wget
-          # descargar commandline tools
-          wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O cmdline-tools.zip
-          mkdir -p $ANDROID_HOME/cmdline-tools
-          unzip -q cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
 
-          # instalar paquetes requeridos antes de licencias
-          yes | $ANDROID_HOME/cmdline-tools/cmdline-tools/bin/sdkmanager --sdk_root=$ANDROID_HOME \
-            "platform-tools" \
-            "platforms;android-34" \
-            "build-tools;36.1.0"
+          # Descargar y preparar SDK
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
+          unzip cmdline-tools.zip -d $HOME/android-sdk/cmdline-tools
+          mv $HOME/android-sdk/cmdline-tools/cmdline-tools $HOME/android-sdk/cmdline-tools/tools
 
-          # aceptar licencias de todo
-          yes | $ANDROID_HOME/cmdline-tools/cmdline-tools/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses
+          # Variables de entorno para este paso
+          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "$HOME/android-sdk/cmdline-tools/tools/bin" >> $GITHUB_PATH
+          echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
+
+          # Aceptar licencias
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "build-tools;33.0.2" "platforms;android-33"
 
       - name: Compile Kivy App
-        run: |
-          buildozer -v android debug
+        run: buildozer -v android debug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MiCalculadora
+          name: my-kivy-apk
           path: bin/*.apk
