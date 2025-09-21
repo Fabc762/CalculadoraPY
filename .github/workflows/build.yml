@@ -14,15 +14,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Build APK with Buildozer
-        uses: wildspider57389928/Buildozer-Kivy-APK_Creator@4.0.0
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          project-dir: .
-          command: buildozer android debug
+          python-version: '3.10'
 
-      - name: Upload APK to GitHub Release
-        uses: softprops/action-gh-release@v1
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install buildozer
+          sudo apt-get update
+          sudo apt-get install -y openjdk-17-jdk unzip wget git
+          wget https://dl.google.com/android/repository/commandlinetools-linux-6858076_latest.zip -O cmdline-tools.zip
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          unzip -q cmdline-tools.zip -d $HOME/android-sdk/cmdline-tools
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/cmdline-tools/bin
+          yes | $HOME/android-sdk/cmdline-tools/cmdline-tools/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses
+
+      - name: Compile Kivy App
+        run: buildozer android debug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
         with:
-          files: bin/*.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: MiCalculadora
+          path: bin/MiCalculadora-0.1-arm64-v8a-debug.apk
