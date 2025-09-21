@@ -45,10 +45,13 @@ jobs:
 
     - name: Accept Android SDK licenses and install components
       run: |
-        yes | sdkmanager --licenses
-        sdkmanager "platform-tools" "build-tools;36.0.0" "platforms;android-33"
+        yes | sdkmanager --sdk_root=$HOME/android-sdk --licenses
+        sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "build-tools;36.1.0" "platforms;android-33"
 
     - name: Build APK with Buildozer
+      env:
+        ANDROID_HOME: ${{ runner.home }}/android-sdk
+        PATH: ${{ runner.home }}/android-sdk/cmdline-tools/latest/bin:${{ runner.home }}/android-sdk/platform-tools:${{ env.PATH }}
       run: buildozer -v android debug
 
     - name: Upload APK artifact
