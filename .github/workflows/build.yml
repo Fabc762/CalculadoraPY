@@ -44,8 +44,8 @@ jobs:
       run: |
         export ANDROID_HOME=$HOME/android-sdk
         export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
-        # aceptar licencias e instalar build-tools y plataformas en un único paso
-        yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses
+        mkdir -p ~/.android && echo "count=0" > ~/.android/repositories.cfg
+        yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses || true
         yes | sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "build-tools;33.0.2" "platforms;android-33"
 
     - name: Build APK with Buildozer
