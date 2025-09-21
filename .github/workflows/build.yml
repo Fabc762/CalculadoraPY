@@ -3,8 +3,8 @@ name: Build Kivy APK
 on:
   push:
     branches:
-      - main  # dispara el workflow cuando haces push a main
-  workflow_dispatch: # permite lanzarlo manualmente desde la pestaña Actions
+      - main
+  workflow_dispatch:
 
 jobs:
   build:
@@ -14,14 +14,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Aquí es donde se construye el APK con Buildozer
       - name: Build APK with Buildozer
         uses: wildspider57389928/Buildozer-Kivy-APK_Creator@4.0.0
         with:
-          project-dir: .                    # carpeta donde está tu buildozer.spec y main.py
-          command: buildozer android debug  # comando Buildozer (puedes usar release también)
+          project-dir: .
+          command: buildozer android debug
 
-      # Subir el APK generado a la release de GitHub
       - name: Upload APK to GitHub Release
         uses: softprops/action-gh-release@v1
         with:
