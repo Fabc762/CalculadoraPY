@@ -27,12 +27,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y openjdk-17-jdk unzip wget git
           wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O cmdline-tools.zip
-          mkdir -p $HOME/android-sdk/cmdline-tools
-          unzip -q cmdline-tools.zip -d $HOME/android-sdk/cmdline-tools
+          mkdir -p $HOME/android-sdk/cmdline-tools/latest
+          unzip -q cmdline-tools.zip -d $HOME/android-sdk/cmdline-tools/latest
           export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/cmdline-tools/bin
-          yes | $HOME/android-sdk/cmdline-tools/cmdline-tools/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses
-          yes | $HOME/android-sdk/cmdline-tools/cmdline-tools/bin/sdkmanager --sdk_root=$ANDROID_HOME "ndk;25.1.8937393"
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "ndk;25.1.8937393"
 
       - name: Compile Kivy App
         run: buildozer android debug
