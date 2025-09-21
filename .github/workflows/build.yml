@@ -53,6 +53,10 @@ jobs:
         ANDROID_HOME: ${{ runner.home }}/android-sdk
         PATH: /usr/bin:/bin:${{ runner.home }}/android-sdk/cmdline-tools/latest/bin:${{ runner.home }}/android-sdk/platform-tools:${{ env.PATH }}
       run: |
+        # Forzar a Buildozer a usar build-tools 33.0.2
+        sed -i 's/^# *android\.sdk_path =.*/android.sdk_path = \/home\/runner\/android-sdk/' buildozer.spec || true
+        sed -i 's/^# *android\.sdk\.api =.*/android.sdk.api = 33/' buildozer.spec || true
+        sed -i 's/^# *android\.ndk_path =.*/android.ndk_path = \/home\/runner\/.buildozer\/android\/platform\/android-ndk/' buildozer.spec || true
         buildozer -v android debug
 
     - name: Upload APK artifact
