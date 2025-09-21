@@ -2,60 +2,29 @@ name: Build Kivy APK
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main  # dispara el workflow cuando haces push a main
+  workflow_dispatch: # permite lanzarlo manualmente desde la pestaña Actions
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
+      # Aquí es donde se construye el APK con Buildozer
+      - name: Build APK with Buildozer
+        uses: wildspider57389928/Buildozer-Kivy-APK_Creator@4.0.0
+        with:
+          project-dir: .                    # carpeta donde está tu buildozer.spec y main.py
+          command: buildozer android debug  # comando Buildozer (puedes usar release también)
 
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y git openjdk-17-jdk wget unzip
-
-    - name: Install Python dependencies
-      run: |
-        pip install --upgrade pip
-        pip install cython buildozer
-
-    - name: Download Android SDK Command Line Tools
-      run: |
-        mkdir -p $HOME/android-sdk/cmdline-tools
-        cd $HOME/android-sdk/cmdline-tools
-        wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O cmdline-tools.zip
-        unzip cmdline-tools.zip
-        # mover a la carpeta que Buildozer espera
-        mkdir -p $HOME/android-sdk/cmdline-tools/latest
-        mv cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
-        rm cmdline-tools.zip
-
-    - name: Add Android SDK to PATH
-      run: |
-        echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
-        echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
-
-    - name: Accept Android SDK licenses and install components
-      run: |
-        sdkmanager --version   # comprueba que existe
-        yes | sdkmanager --licenses
-        sdkmanager "platform-tools" "build-tools;33.0.2" "platforms;android-33"
-
-    - name: Build APK with Buildozer
-      run: buildozer -v android debug
-
-    - name: Upload APK artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: kivy-app.apk
-        path: bin/*.apk
+      # Subir el APK generado a la release de GitHub
+      - name: Upload APK to GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: bin/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
